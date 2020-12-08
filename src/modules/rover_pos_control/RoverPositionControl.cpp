@@ -287,43 +287,38 @@ RoverPositionControl::control_velocity(const matrix::Vector3f &current_velocity,
 	float dt = 0.01; // Using non zero value to a avoid division by zero
 
 	const float mission_throttle = _param_throttle_cruise.get();
-	const matrix::Vector3f desired_velocity{pos_sp_triplet.current.vx, pos_sp_triplet.current.vy, pos_sp_triplet.current.vz};
-	const float desired_speed = desired_velocity.norm();
+	const float desired_speed = pos_sp_triplet.current.vx;
 
-	if (desired_speed > 0.01f) {
-
+	if (desired_speed > 0.01f || desired_speed < -0.01f) {
 		const Dcmf R_to_body(Quatf(_vehicle_att.q).inversed());
+		// current_velocity는 body Frame이 아닌 local Frame 이니 body Frame으로 변경해주는 작업 필요!
 		const Vector3f vel = R_to_body * Vector3f(current_velocity(0), current_velocity(1), current_velocity(2));
 
 		const float x_vel = vel(0);
 		const float x_acc = _vehicle_acceleration_sub.get().xyz[0];
-
 		const float control_throttle = pid_calculate(&_speed_ctrl, desired_speed, x_vel, x_acc, dt);
 
 		//Constrain maximum throttle to mission throttle
-		_act_controls.control[actuator_controls_s::INDEX_THROTTLE] = math::constrain(control_throttle, 0.0f, mission_throttle);
+		_act_controls.control[actuator_controls_s::INDEX_THROTTLE] = math::constrain(control_throttle, -mission_throttle, mission_throttle);
 
-		Vector3f desired_body_velocity;
+		const float angular_z_speed = pos_sp_triplet.current.yawspeed; //angular z
 
-		if (pos_sp_triplet.current.velocity_frame == position_setpoint_s::VELOCITY_FRAME_BODY_NED) {
-			desired_body_velocity = desired_velocity;
+		if (angular_z_speed > 0.01f || angular_z_speed < -0.01f)
+		{ //조향이 있을때
+			const float wheel_base = _param_wheel_base.get();
+			float radius = abs(desired_speed) / angular_z_speed;
+			const float desired_theta = atanf(wheel_base / radius);
+			float control_effort = desired_theta / _param_max_turn_angle.get();
+			control_effort = math::constrain(control_effort, -1.0f, 1.0f);
 
-		} else {
-			// If the frame of the velocity setpoint is unknown, assume it is in local frame
-			desired_body_velocity = R_to_body * desired_velocity;
-
+			_act_controls.control[actuator_controls_s::INDEX_YAW] = control_effort;
 		}
-
-		const float desired_theta = atan2f(desired_body_velocity(1), desired_body_velocity(0));
-		float control_effort = desired_theta / _param_max_turn_angle.get();
-		control_effort = math::constrain(control_effort, -1.0f, 1.0f);
-
-		_act_controls.control[actuator_controls_s::INDEX_YAW] = control_effort;
-
-	} else {
-
+		else {
+			_act_controls.control[actuator_controls_s::INDEX_YAW] = 0.0f;
+		}
+	}
+	else {
 		_act_controls.control[actuator_controls_s::INDEX_THROTTLE] = 0.0f;
-		_act_controls.control[actuator_controls_s::INDEX_YAW] = 0.0f;
 
 	}
 }
