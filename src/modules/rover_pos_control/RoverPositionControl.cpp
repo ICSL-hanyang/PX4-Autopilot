@@ -288,7 +288,7 @@ RoverPositionControl::control_velocity(const matrix::Vector3f &current_velocity,
 	const float mission_throttle = _param_throttle_cruise.get();
 	const float desired_speed = pos_sp_triplet.current.vx;
 
-	if (desired_speed > 0.01f || desired_speed < -0.01f) {
+	if (desired_speed > 0.001f || desired_speed < -0.001f) {
 		const Dcmf R_to_body(Quatf(_vehicle_att.q).inversed());
 		// current_velocity는 body Frame이 아닌 local Frame 이니 body Frame으로 변경해주는 작업 필요!
 		const Vector3f vel = R_to_body * Vector3f(current_velocity(0), current_velocity(1), current_velocity(2));
@@ -302,7 +302,7 @@ RoverPositionControl::control_velocity(const matrix::Vector3f &current_velocity,
 
 		const float angular_z_speed = pos_sp_triplet.current.yawspeed; //angular z
 
-		if (angular_z_speed > 0.01f || angular_z_speed < -0.01f)
+		if (angular_z_speed > 0.001f || angular_z_speed < -0.001f)
 		{ //조향이 있을때
 			const float wheel_base = _param_wheel_base.get();
 			float radius = abs(desired_speed) / angular_z_speed;
