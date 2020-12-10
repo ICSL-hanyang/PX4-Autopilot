@@ -15,15 +15,16 @@ then
 	param set GND_THR_IDLE 0
 	param set GND_THR_MIN 0
 #--------------speed------------------------------
-	param set GND_SP_CTRL_MODE 0
-	param set GND_THR_MAX 0.5
-	param set GND_SPEED_TRIM 10
+	param set GND_SP_CTRL_MODE 1
+	param set GND_THR_MAX 1
+	param set GND_SPEED_TRIM 3
 	param set GND_SPEED_IMAX 0.125
-	param set GND_SPEED_MAX 10
-	param set GND_THR_CRUISE 0.5
+	param set GND_SPEED_MAX 40
+	param set GND_THR_CRUISE 0
 
 
 	param set EKF2_AID_MASK 1
+	param set EKF2_GPS_MASK 1
 	param set EKF2_HGT_MODE 1
 	param set EKF2_GND_MAX_HGT 5.0
 	param set EKF2_MAG_TYPE 0
