@@ -8,18 +8,28 @@ sh /etc/init.d/rc.rover_defaults
 if [ $AUTOCNF = yes ]
 then
 	param set GND_L1_DIST 5
-	param set GND_SP_CTRL_MODE 1
 	param set GND_SPEED_D 0.001
 	param set GND_SPEED_I 3
-	param set GND_SPEED_IMAX 0.125
 	param set GND_SPEED_P 0.25
 	param set GND_SPEED_THR_SC 1
-	param set GND_SPEED_TRIM 4
-	param set GND_THR_CRUISE 0.3
 	param set GND_THR_IDLE 0
-	param set GND_THR_MAX 0.5
 	param set GND_THR_MIN 0
+#--------------speed------------------------------
+	param set GND_SP_CTRL_MODE 0
+	param set GND_THR_MAX 0.5
+	param set GND_SPEED_TRIM 10
+	param set GND_SPEED_IMAX 0.125
+	param set GND_SPEED_MAX 10
+	param set GND_THR_CRUISE 0.5
 
+
+	param set EKF2_AID_MASK 1
+	param set EKF2_HGT_MODE 1
+	param set EKF2_GND_MAX_HGT 5.0
+	param set EKF2_MAG_TYPE 0
+	param set SYS_HAS_BARO 1
+	param set SYS_CAL_BARO 0
+#------------------------------------------------
 	param set MIS_LTRMIN_ALT 0.01
 	param set MIS_TAKEOFF_ALT 0.01
 	param set NAV_ACC_RAD 0.5
@@ -31,7 +41,6 @@ then
 	param set GND_WHEEL_BASE 2.0
 
 fi
-
 set MAV_TYPE 10
 
 set MIXER_FILE etc/mixers-sitl/rover_ackermann_sitl.main.mix

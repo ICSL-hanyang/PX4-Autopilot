@@ -300,25 +300,29 @@ RoverPositionControl::control_velocity(const matrix::Vector3f &current_velocity,
 		//Constrain maximum throttle to mission throttle
 		_act_controls.control[actuator_controls_s::INDEX_THROTTLE] = math::constrain(control_throttle, -mission_throttle, mission_throttle);
 
-		const float angular_z_speed = pos_sp_triplet.current.yawspeed; //angular z
-
-		if (angular_z_speed > 0.001f || angular_z_speed < -0.001f)
-		{ //조향이 있을때
-			const float wheel_base = _param_wheel_base.get();
-			float radius = abs(desired_speed) / angular_z_speed;
-			const float desired_theta = atanf(wheel_base / radius);
-			float control_effort = desired_theta / _param_max_turn_angle.get();
-			control_effort = math::constrain(control_effort, -1.0f, 1.0f);
-
-			_act_controls.control[actuator_controls_s::INDEX_YAW] = control_effort;
-		}
-		else {
-			_act_controls.control[actuator_controls_s::INDEX_YAW] = 0.0f;
-		}
 	}
 	else {
 		_act_controls.control[actuator_controls_s::INDEX_THROTTLE] = 0.0f;
 
+	}
+
+	const float angular_z_speed = pos_sp_triplet.current.yawspeed; //angular z
+
+	if (angular_z_speed > 0.001f || angular_z_speed < -0.001f)
+	{ //조향이 있을때
+		// const float wheel_base = _param_wheel_base.get();
+		// float radius = abs(desired_speed) / angular_z_speed;
+
+		// const float desired_theta = atan2f(desired_body_velocity(1), desired_body_velocity(0));
+		// const float desired_theta = atanf(wheel_base / radius);
+		// float control_effort = desired_theta / _param_max_turn_angle.get();
+		float control_effort = angular_z_speed / _param_max_turn_angle.get();
+		control_effort = math::constrain(control_effort, -1.0f, 1.0f);
+		// float control_effort = angular_z_speed;
+		_act_controls.control[actuator_controls_s::INDEX_YAW] = control_effort;
+	}
+	else {
+		_act_controls.control[actuator_controls_s::INDEX_YAW] = 0.0f;
 	}
 }
 
